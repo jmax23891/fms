@@ -1,0 +1,2 @@
+require('dotenv').config();const env=require('./config/env');const app=require('./app');const pool=require('./db/pool');
+(async()=>{try{await pool.query('SELECT 1');const server=app.listen(env.PORT,()=>console.log(`Student Feedback API listening on http://localhost:${env.PORT}`));const stop=async()=>{server.close(async()=>{await pool.end();process.exit(0);});};process.on('SIGINT',stop);process.on('SIGTERM',stop);}catch(e){console.error('Could not connect to PostgreSQL:',e.message);process.exit(1);}})();

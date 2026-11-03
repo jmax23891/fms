@@ -1,0 +1,36 @@
+services:
+  db:
+    image: postgres:18-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: student_feedback_system
+      POSTGRES_USER: sfs_app
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Set POSTGRES_PASSWORD in .env}
+    volumes:
+      - sfs_db_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U sfs_app -d student_feedback_system"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+  api:
+    build: ./Backend
+    restart: unless-stopped
+    env_file: ./Backend/.env
+    environment:
+      DATABASE_URL: postgresql://sfs_app:${POSTGRES_PASSWORD}@db:5432/student_feedback_system
+      CORS_ORIGIN: http://localhost:8080
+      COOKIE_SECURE: "false"
+      COOKIE_SAME_SITE: lax
+    depends_on:
+      db:
+        condition: service_healthy
+  web:
+    build: ./Frontend
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    depends_on:
+      - api
+volumes:
+  sfs_db_data:

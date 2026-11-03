@@ -1,0 +1,5 @@
+cd "N:\Student feedback\Frontend"
+npx http-server . -p 5500
+
+
+PS N:\Student feedback\Backend> npm run dev
